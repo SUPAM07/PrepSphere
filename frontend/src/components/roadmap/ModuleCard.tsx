@@ -5,15 +5,15 @@ import {
   FiYoutube, FiBookOpen,
 } from "react-icons/fi";
 
-const difficultyColor = { Easy: "#34d399", Medium: "#a78bfa", Hard: "#f87171" };
+const difficultyColor: Record<string, string> = { Easy: "#34d399", Medium: "#a78bfa", Hard: "#f87171" };
 
-const statusStyle = {
+const statusStyle: Record<string, string> = {
   Completed:   "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  "In Progress": "bg-violet-500/20 text-violet-400 border-violet-500/30",
+  "In Progress": "bg-blue-500/20 text-blue-400 border-blue-500/30",
   Pending:     "bg-white/5 text-white/35 border-white/10",
 };
 
-export default function ModuleCard({ mod, index }) {
+export default function ModuleCard({ mod, index }: any) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,7 +23,7 @@ export default function ModuleCard({ mod, index }) {
       transition={{ delay: index * 0.06, duration: 0.35 }}
       whileHover={{ y: -2 }}
       onClick={() => setOpen(!open)}
-      className="relative overflow-hidden bg-[#000000]/90 backdrop-blur-2xl border border-white/10 rounded-xl cursor-pointer select-none shadow-[0_4px_18px_rgba(0,0,0,0.2)] hover:border-white/20 transition-all"
+      className="relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-xl cursor-pointer select-none shadow-sm hover:border-zinc-700 hover:shadow-md transition-all"
     >
       {/* glass sheen */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.07] via-transparent to-transparent pointer-events-none" />
