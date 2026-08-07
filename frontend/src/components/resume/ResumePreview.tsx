@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import DownloadButton from "./DownloadButton";
 import ATSTemplate from "./ATSTemplate";
 
-export default function ResumePreview({ data, onBack , user , setUser }) {
+export default function ResumePreview({ data, onBack, setUser }: any) {
   const resumeRef = useRef(null);
   const [scale, setScale] = useState(1);
 
@@ -60,9 +60,7 @@ useEffect(() => {
               </span>
             </button>
 
-            <DownloadButton resumeRef={resumeRef}  resumeRef={resumeRef}
-    user={user}
-    setUser={setUser} />
+            <DownloadButton resumeRef={resumeRef} setUser={setUser} />
 
           </div>
 
