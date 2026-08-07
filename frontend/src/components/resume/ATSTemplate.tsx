@@ -1,14 +1,14 @@
 // ATS Friendly Resume Template - Updated
 // Pure black & white, bullet points, 2-col skills, no color text
 
-export default function ATSTemplate({ data }) {
+export default function ATSTemplate({ data }: any) {
     const {
         name, email, phone, location, linkedin, github,
         summary, skills, experience, projects, education
     } = data;
 
     const skillsList = skills
-        ? skills.split(",").map((s) => s.trim()).filter(Boolean)
+        ? skills.split(",").map((s: string) => s.trim()).filter(Boolean)
         : [];
 
     // Split skills into 2 columns
@@ -17,12 +17,12 @@ export default function ATSTemplate({ data }) {
     const skillsCol2 = skillsList.slice(half);
 
     // Render description as bullet points
-    const renderBullets = (text) => {
+    const renderBullets = (text: string) => {
         if (!text) return null;
-        const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+        const lines = text.split("\n").map((l: string) => l.trim()).filter(Boolean);
         return (
             <ul style={{ margin: "4px 0 0 16px", padding: 0, listStyleType: "disc" }}>
-                {lines.map((line, i) => (
+                {lines.map((line: string, i: number) => (
                     <li key={i} style={{ fontSize: "11px", lineHeight: "1.6", color: "#000", marginBottom: "1px" }}>
                         {line.replace(/^[-•]\s*/, "")}
                     </li>
@@ -89,12 +89,12 @@ export default function ATSTemplate({ data }) {
                     <h2 style={sectionStyle}>Technical Skills</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 20px" }}>
                         <ul style={{ margin: 0, padding: "0 0 0 16px", listStyleType: "disc" }}>
-                            {skillsCol1.map((s, i) => (
+                            {skillsCol1.map((s: string, i: number) => (
                                 <li key={i} style={{ fontSize: "11px", lineHeight: "1.7", color: "#000" }}>{s}</li>
                             ))}
                         </ul>
                         <ul style={{ margin: 0, padding: "0 0 0 16px", listStyleType: "disc" }}>
-                            {skillsCol2.map((s, i) => (
+                            {skillsCol2.map((s: string, i: number) => (
                                 <li key={i} style={{ fontSize: "11px", lineHeight: "1.7", color: "#000" }}>{s}</li>
                             ))}
                         </ul>
@@ -106,7 +106,7 @@ export default function ATSTemplate({ data }) {
             {experience?.length > 0 && (
                 <div style={{ marginBottom: "13px" }}>
                     <h2 style={sectionStyle}>Work Experience</h2>
-                    {experience.map((exp, i) => (
+                    {experience.map((exp: any, i: number) => (
                         <div key={i} style={{ marginBottom: "11px", breakInside: "avoid", pageBreakInside: "avoid" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                                 <span style={{ fontWeight: "bold", fontSize: "12px", color: "#000" }}>{exp.role}</span>
@@ -125,7 +125,7 @@ export default function ATSTemplate({ data }) {
             {projects?.length > 0 && (
                 <div style={{ marginBottom: "13px" }}>
                     <h2 style={sectionStyle}>Projects</h2>
-                    {projects.map((proj, i) => (
+                    {projects.map((proj: any, i: number) => (
                         <div key={i} style={{ marginBottom: "11px", breakInside: "avoid", pageBreakInside: "avoid" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                                 <span style={{ fontWeight: "bold", fontSize: "12px", color: "#000" }}>{proj.name}</span>
@@ -150,7 +150,7 @@ export default function ATSTemplate({ data }) {
             {education?.length > 0 && (
                 <div>
                     <h2 style={sectionStyle}>Education</h2>
-                    {education.map((edu, i) => (
+                    {education.map((edu: any, i: number) => (
                         <div key={i} style={{ marginBottom: "9px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                                 <span style={{ fontWeight: "bold", fontSize: "12px", color: "#000" }}>
