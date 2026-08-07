@@ -218,6 +218,7 @@ resource "aws_ecs_task_definition" "auth_service" {
         { containerPort = 50051, hostPort = 50051 }
       ]
       environment = concat(local.shared_env, [
+        { name = "PORT", value = "8001" },
         { name = "POSTGRES_URL", value = var.postgres_url }
       ])
       logConfiguration = {
@@ -279,6 +280,7 @@ resource "aws_ecs_task_definition" "billing_service" {
       essential = true
       portMappings = [{ containerPort = 8002, hostPort = 8002 }]
       environment = concat(local.shared_env, [
+        { name = "PORT", value = "8002" },
         { name = "POSTGRES_URL", value = var.postgres_url },
         { name = "RAZORPAY_KEY_ID", value = var.razorpay_key_id },
         { name = "RAZORPAY_KEY_SECRET", value = var.razorpay_key_secret },
@@ -343,6 +345,7 @@ resource "aws_ecs_task_definition" "interview_service" {
       essential = true
       portMappings = [{ containerPort = 8003, hostPort = 8003 }]
       environment = concat(local.shared_env, [
+        { name = "PORT", value = "8003" },
         { name = "MONGODB_URL", value = var.mongodb_url },
         { name = "GROQ_API_KEY", value = var.groq_api_key }
       ])
@@ -405,6 +408,7 @@ resource "aws_ecs_task_definition" "resume_service" {
       essential = true
       portMappings = [{ containerPort = 8004, hostPort = 8004 }]
       environment = concat(local.shared_env, [
+        { name = "PORT", value = "8004" },
         { name = "MONGODB_URL", value = var.mongodb_url },
         { name = "GROQ_API_KEY", value = var.groq_api_key }
       ])
@@ -467,6 +471,7 @@ resource "aws_ecs_task_definition" "roadmap_service" {
       essential = true
       portMappings = [{ containerPort = 8005, hostPort = 8005 }]
       environment = concat(local.shared_env, [
+        { name = "PORT", value = "8005" },
         { name = "MONGODB_URL", value = var.mongodb_url },
         { name = "GROQ_API_KEY", value = var.groq_api_key }
       ])
