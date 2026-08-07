@@ -3,14 +3,9 @@ output "alb_dns_name" {
   description = "Public API endpoint for Gateway"
 }
 
-output "cloudfront_domain_name" {
-  value       = aws_cloudfront_distribution.frontend.domain_name
-  description = "Frontend application URL"
-}
-
-output "cloudfront_distribution_id" {
-  value       = aws_cloudfront_distribution.frontend.id
-  description = "CloudFront Distribution ID for cache invalidations"
+output "frontend_url" {
+  value       = "http://${aws_s3_bucket_website_configuration.frontend.website_endpoint}"
+  description = "Public URL for the React frontend (S3 Static Website)"
 }
 
 output "s3_bucket_name" {
