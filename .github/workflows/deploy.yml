@@ -131,7 +131,7 @@ jobs:
           cd frontend
           npm run build
         env:
-          VITE_API_BASE_URL: http://${{ secrets.ALB_DNS_NAME }}/api
+          VITE_API_BASE_URL: http://${{ secrets.ALB_DNS_NAME }}
 
       - name: Deploy to S3
         run: |
