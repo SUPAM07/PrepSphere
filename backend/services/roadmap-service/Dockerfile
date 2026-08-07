@@ -1,7 +1,6 @@
-FROM node
+FROM node:20-slim
 
 WORKDIR /app
-
 
 COPY package*.json ./
 RUN npm install
@@ -11,9 +10,12 @@ RUN cd services/roadmap-service && npm install
 
 COPY services/roadmap-service ./services/roadmap-service
 COPY shared ./shared
+COPY tsconfig.base.json ./
 
 WORKDIR /app/services/roadmap-service
 
-EXPOSE 8004
+RUN npx tsc
 
-CMD [ "npm","start" ]
+EXPOSE 8003
+
+CMD [ "node", "dist/services/roadmap-service/index.js" ]
