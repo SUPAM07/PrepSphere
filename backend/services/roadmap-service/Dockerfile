@@ -26,6 +26,7 @@ COPY ./services/roadmap-service/package*.json ./services/roadmap-service/
 RUN cd services/roadmap-service && npm ci --omit=dev
 
 COPY --from=builder /app/services/roadmap-service/dist ./services/roadmap-service/dist
+COPY --from=builder /app/shared ./shared
 
 WORKDIR /app/services/roadmap-service
 EXPOSE 8003

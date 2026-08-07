@@ -26,6 +26,7 @@ COPY ./gateway/package*.json ./gateway/
 RUN cd gateway && npm ci --omit=dev
 
 COPY --from=builder /app/gateway/dist ./gateway/dist
+COPY --from=builder /app/shared ./shared
 
 WORKDIR /app/gateway
 EXPOSE 8000

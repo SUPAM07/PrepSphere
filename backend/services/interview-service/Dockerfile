@@ -26,6 +26,7 @@ COPY ./services/interview-service/package*.json ./services/interview-service/
 RUN cd services/interview-service && npm ci --omit=dev
 
 COPY --from=builder /app/services/interview-service/dist ./services/interview-service/dist
+COPY --from=builder /app/shared ./shared
 
 WORKDIR /app/services/interview-service
 EXPOSE 8002

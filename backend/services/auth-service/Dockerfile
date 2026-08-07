@@ -32,6 +32,7 @@ RUN cd services/auth-service && npm ci --omit=dev
 RUN apk del python3 make g++
 
 COPY --from=builder /app/services/auth-service/dist ./services/auth-service/dist
+COPY --from=builder /app/shared ./shared
 
 WORKDIR /app/services/auth-service
 EXPOSE 8001
