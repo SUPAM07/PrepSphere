@@ -31,8 +31,9 @@ RUN cd services/auth-service && npm ci --omit=dev
 
 RUN apk del python3 make g++
 
-COPY --from=builder /app/services/auth-service/dist ./dist
+COPY --from=builder /app/services/auth-service/dist ./services/auth-service/dist
 
+WORKDIR /app/services/auth-service
 EXPOSE 8001
 
 CMD ["sh", "-c", "node dist/services/auth-service/db/migrate.js && node dist/services/auth-service/index.js"]

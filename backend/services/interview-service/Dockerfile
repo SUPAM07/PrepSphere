@@ -25,8 +25,9 @@ RUN npm ci --omit=dev
 COPY ./services/interview-service/package*.json ./services/interview-service/
 RUN cd services/interview-service && npm ci --omit=dev
 
-COPY --from=builder /app/services/interview-service/dist ./dist
+COPY --from=builder /app/services/interview-service/dist ./services/interview-service/dist
 
+WORKDIR /app/services/interview-service
 EXPOSE 8002
 
 CMD ["node", "dist/services/interview-service/index.js"]

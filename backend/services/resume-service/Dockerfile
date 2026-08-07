@@ -25,8 +25,9 @@ RUN npm ci --omit=dev
 COPY ./services/resume-service/package*.json ./services/resume-service/
 RUN cd services/resume-service && npm ci --omit=dev
 
-COPY --from=builder /app/services/resume-service/dist ./dist
+COPY --from=builder /app/services/resume-service/dist ./services/resume-service/dist
 
+WORKDIR /app/services/resume-service
 EXPOSE 8004
 
 CMD ["node", "dist/services/resume-service/index.js"]

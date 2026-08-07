@@ -25,8 +25,9 @@ RUN npm ci --omit=dev
 COPY ./services/roadmap-service/package*.json ./services/roadmap-service/
 RUN cd services/roadmap-service && npm ci --omit=dev
 
-COPY --from=builder /app/services/roadmap-service/dist ./dist
+COPY --from=builder /app/services/roadmap-service/dist ./services/roadmap-service/dist
 
+WORKDIR /app/services/roadmap-service
 EXPOSE 8003
 
 CMD ["node", "dist/services/roadmap-service/index.js"]

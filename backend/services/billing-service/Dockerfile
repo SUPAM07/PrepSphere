@@ -31,8 +31,9 @@ RUN cd services/billing-service && npm ci --omit=dev
 
 RUN apk del python3 make g++
 
-COPY --from=builder /app/services/billing-service/dist ./dist
+COPY --from=builder /app/services/billing-service/dist ./services/billing-service/dist
 
+WORKDIR /app/services/billing-service
 EXPOSE 8005
 
 CMD ["sh", "-c", "node dist/services/billing-service/db/migrate.js && node dist/services/billing-service/index.js"]

@@ -25,8 +25,9 @@ RUN npm ci --omit=dev
 COPY ./gateway/package*.json ./gateway/
 RUN cd gateway && npm ci --omit=dev
 
-COPY --from=builder /app/gateway/dist ./dist
+COPY --from=builder /app/gateway/dist ./gateway/dist
 
+WORKDIR /app/gateway
 EXPOSE 8000
 
 CMD ["node", "dist/gateway/index.js"]
