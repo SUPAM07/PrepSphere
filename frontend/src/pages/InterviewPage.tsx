@@ -6,17 +6,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import Step2Interview from "../components/interview/Step2Interview";
 import { getInterview } from "../api/interview.api";
 
-function InterviewPage({user}) {
+function InterviewPage({user}: any) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [interview, setInterview] = useState(null);
+  const [interview, setInterview] = useState<any>(null);
 
   useEffect(() => {
     const fetchInterview = async () => {
       
-        const response = await getInterview(id);
+        const response = await getInterview(id!);
         
 
         const data = response?.interview;
