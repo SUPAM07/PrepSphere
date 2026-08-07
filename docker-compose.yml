@@ -1,0 +1,214 @@
+services:
+  # ========================================
+  # Infrastructure
+  # ========================================
+  mongodb:
+    image: mongo:6
+    restart: on-failure
+    container_name: prepsphere_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - prepsphere-net
+
+  redis:
+    image: redis:7
+    restart: on-failure
+    container_name: prepsphere_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - prepsphere-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: on-failure
+    container_name: prepsphere_rabbitmq
+    ports:
+      - "5672:5672" # AMQP protocol
+      - "15672:15672" # Management UI (guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prepsphere-net
+
+  # ========================================
+  # Microservices
+  # ========================================
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/auth-service/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_auth_service
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      NODE_OPTIONS: --dns-result-order=ipv4first
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - prepsphere-net
+
+  postgres:
+    image: postgres:15-alpine
+    restart: on-failure
+    container_name: prepsphere_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: prepsphere
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prepsphere-net
+
+  billing-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/billing-service/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_billing_service
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET}
+      NODE_OPTIONS: --dns-result-order=ipv4first
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - prepsphere-net
+
+  interview-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/interview-service/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_interview_service
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+    depends_on:
+      - mongodb
+      - redis
+      - rabbitmq
+    networks:
+      - prepsphere-net
+
+  resume-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/resume-service/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_resume_service
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+    depends_on:
+      - mongodb
+      - redis
+      - rabbitmq
+    networks:
+      - prepsphere-net
+
+  roadmap-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/roadmap-service/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_roadmap_service
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+    depends_on:
+      - mongodb
+      - redis
+      - rabbitmq
+    networks:
+      - prepsphere-net
+
+  # ========================================
+  # API Gateway
+  # ========================================
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: ./gateway/Dockerfile
+    restart: on-failure
+    container_name: prepsphere_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      INTERVIEW_SERVICE_URL: ${INTERVIEW_SERVICE_URL}
+      RESUME_SERVICE_URL: ${RESUME_SERVICE_URL}
+      ROADMAP_SERVICE_URL: ${ROADMAP_SERVICE_URL}
+      BILLING_SERVICE_URL: ${BILLING_SERVICE_URL}
+      REDIS_URL: ${REDIS_URL}
+      AUTH_SERVICE_GRPC_URL: ${AUTH_SERVICE_GRPC_URL}
+    depends_on:
+      - auth-service
+      - billing-service
+      - interview-service
+      - resume-service
+      - roadmap-service
+      - redis
+    networks:
+      - prepsphere-net
+
+  # ========================================
+  # Frontend
+  # ========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: prepsphere_frontend
+    ports:
+      - "3000:80" # Maps host 3000 to Nginx 80
+    networks:
+      - prepsphere-net
+
+volumes:
+  mongo_data:
+  postgres_data:
+
+networks:
+  prepsphere-net:
+    driver: bridge
