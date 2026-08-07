@@ -181,6 +181,7 @@ services:
       BILLING_SERVICE_URL: ${BILLING_SERVICE_URL}
       REDIS_URL: ${REDIS_URL}
       AUTH_SERVICE_GRPC_URL: ${AUTH_SERVICE_GRPC_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
     depends_on:
       - auth-service
       - billing-service

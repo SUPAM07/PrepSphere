@@ -1,25 +1,38 @@
-FROM node:20-slim
-
+# Stage 1: Build
+FROM node:20-alpine AS builder
 WORKDIR /app
 
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY ./services/billing-service/package*.json ./services/billing-service/
-RUN cd services/billing-service && npm install
+RUN cd services/billing-service && npm ci
 
 COPY services/billing-service ./services/billing-service
 COPY shared ./shared
 COPY tsconfig.base.json ./
 
 WORKDIR /app/services/billing-service
-
-RUN apt-get update && apt-get install -y python3 make g++
-
 RUN npx tsc
+
+# Stage 2: Production
+FROM node:20-alpine
+WORKDIR /app
+
+RUN apk add --no-cache python3 make g++
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY ./services/billing-service/package*.json ./services/billing-service/
+RUN cd services/billing-service && npm ci --omit=dev
+
+RUN apk del python3 make g++
+
+COPY --from=builder /app/services/billing-service/dist ./dist
 
 EXPOSE 8005
 
-# IMPROVEMENT 2: Run Drizzle migrations automatically before starting the server.
-# This ensures the DB schema is always up-to-date on every container boot.
 CMD ["sh", "-c", "node dist/services/billing-service/db/migrate.js && node dist/services/billing-service/index.js"]

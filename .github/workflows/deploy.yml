@@ -1,0 +1,135 @@
+name: AWS Deployment Orchestration
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: eu-north-1
+  PROJECT_NAME: prepsphere
+
+jobs:
+  infrastructure-ecr:
+    name: Provision ECR Repositories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Apply (ECR Target Only)
+        working-directory: ./terraform
+        run: terraform apply -target=aws_ecr_repository.repo -auto-approve
+
+  build-backend:
+    name: Build & Push Backend Services to ECR
+    needs: infrastructure-ecr
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway, auth-service, billing-service, interview-service, resume-service, roadmap-service]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG -f backend/${{ matrix.service != 'gateway' && 'services/' || '' }}${{ matrix.service }}/Dockerfile backend/
+          docker push $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG
+
+  infrastructure-app:
+    name: Provision App Infrastructure (ECS, ALB, S3)
+    needs: build-backend
+    runs-on: ubuntu-latest
+    outputs:
+      alb_url: ${{ steps.tf-outputs.outputs.alb_dns }}
+      s3_bucket: ${{ steps.tf-outputs.outputs.s3_bucket }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        env:
+          TF_VAR_mongodb_url: ${{ secrets.MONGODB_URL }}
+          TF_VAR_postgres_url: ${{ secrets.POSTGRES_URL }}
+          TF_VAR_groq_api_key: ${{ secrets.GROQ_API_KEY }}
+          TF_VAR_razorpay_key_id: ${{ secrets.RAZORPAY_KEY_ID }}
+          TF_VAR_razorpay_key_secret: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          TF_VAR_razorpay_webhook_secret: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
+        run: terraform apply -auto-approve
+
+      - name: Extract Terraform Outputs
+        id: tf-outputs
+        working-directory: ./terraform
+        run: |
+          echo "alb_dns=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
+          echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+
+  build-frontend:
+    name: Build & Deploy Frontend to S3
+    needs: infrastructure-app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        env:
+          VITE_API_BASE_URL: http://${{ needs.infrastructure-app.outputs.alb_url }}
+        run: npm run build
+
+      - name: Deploy to S3
+        working-directory: ./frontend
+        run: aws s3 sync dist/ s3://${{ needs.infrastructure-app.outputs.s3_bucket }} --delete

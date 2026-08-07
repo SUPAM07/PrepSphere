@@ -289,109 +289,111 @@ const getRoadmapById = async (id: any) => {
       </AnimatePresence>
 
       {/* ── Fixed Bottom Input ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 pb-4 sm:pb-6 pt-4 px-3 sm:px-4 bg-gradient-to-t from-white via-white/95 to-transparent">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-3 sm:p-4 rounded-[20px] bg-zinc-900 border border-zinc-800 shadow-2xl"
-          >
-            {/* Left side text */}
-            <div className="flex items-center gap-3 pl-1 sm:pl-2">
-              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
-                <FiBriefcase size={16} />
+      {!roadmap && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 pb-4 sm:pb-6 pt-4 px-3 sm:px-4 bg-gradient-to-t from-white via-white/95 to-transparent">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-3 sm:p-4 rounded-[20px] bg-zinc-900 border border-zinc-800 shadow-2xl"
+            >
+              {/* Left side text */}
+              <div className="flex items-center gap-3 pl-1 sm:pl-2">
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
+                  <FiBriefcase size={16} />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[200px] w-full max-w-[250px]">
+                  <input
+                    type="text"
+                    placeholder="Type your targeted role..."
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="bg-transparent border-b border-white/10 text-white font-bold text-sm tracking-tight focus:outline-none focus:border-white/30 placeholder:text-white/40 pb-0.5 w-full"
+                  />
+                  <p className="text-white/40 text-[11px] mt-1">Adjust preferences and generate your plan.</p>
+                </div>
               </div>
-              <div className="flex flex-col flex-1 min-w-[200px] w-full max-w-[250px]">
-                <input
-                  type="text"
-                  placeholder="Type your targeted role..."
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="bg-transparent border-b border-white/10 text-white font-bold text-sm tracking-tight focus:outline-none focus:border-white/30 placeholder:text-white/40 pb-0.5 w-full"
-                />
-                <p className="text-white/40 text-[11px] mt-1">Adjust preferences and generate your plan.</p>
-              </div>
-            </div>
 
-            {/* Right side controls */}
-            <div className="flex flex-wrap md:flex-nowrap items-center gap-2 sm:gap-3 justify-start md:justify-end">
-              {/* Target Package Dropdown */}
-              <div className="relative">
+              {/* Right side controls */}
+              <div className="flex flex-wrap md:flex-nowrap items-center gap-2 sm:gap-3 justify-start md:justify-end">
+                {/* Target Package Dropdown */}
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setPackageOpen(!packageOpen)}
+                    type="button"
+                    className="relative flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white/90 hover:border-white/20 transition-all whitespace-nowrap bg-white/5"
+                  >
+                    {targetPackage} Goal
+                    <FiChevronDown size={11} className={`ml-1 transition-transform ${packageOpen ? "rotate-180" : ""}`} />
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {packageOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute bottom-full mb-2 right-0 w-32 rounded-xl overflow-hidden border border-white/10 bg-[#0A0A0A] shadow-[0_8px_24px_rgba(0,0,0,0.35)] z-10"
+                      >
+                        {PACKAGE_OPTIONS.map((pkg) => (
+                          <button
+                            key={pkg}
+                            onClick={() => {
+                              setTargetPackage(pkg);
+                              setPackageOpen(false);
+                            }}
+                            className={`w-full text-left text-[11px] sm:text-xs px-3 py-2 transition-colors ${
+                              pkg === targetPackage
+                                ? "bg-blue-600/20 text-blue-400 font-semibold"
+                                : "text-white/55 hover:bg-white/5 hover:text-white/90"
+                            }`}
+                          >
+                            {pkg} Goal
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Use Resume Button */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => setPackageOpen(!packageOpen)}
+                  onClick={() => setUseResume(!useResume)}
                   type="button"
-                  className="relative flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white/90 hover:border-white/20 transition-all whitespace-nowrap bg-white/5"
+                  className={`flex items-center text-[11px] sm:text-xs font-semibold gap-1.5 px-3 py-2.5 rounded-xl transition-all whitespace-nowrap ${
+                    useResume
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                      : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10"
+                  }`}
                 >
-                  {targetPackage} Goal
-                  <FiChevronDown size={11} className={`ml-1 transition-transform ${packageOpen ? "rotate-180" : ""}`} />
+                  {useResume ? (
+                    <><FiCheck size={14} /> Resume</>
+                  ) : (
+                    <><FiUploadCloud size={14} /> Upload Resume</>
+                  )}
                 </motion.button>
 
-                <AnimatePresence>
-                  {packageOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 right-0 w-32 rounded-xl overflow-hidden border border-white/10 bg-[#0A0A0A] shadow-[0_8px_24px_rgba(0,0,0,0.35)] z-10"
-                    >
-                      {PACKAGE_OPTIONS.map((pkg) => (
-                        <button
-                          key={pkg}
-                          onClick={() => {
-                            setTargetPackage(pkg);
-                            setPackageOpen(false);
-                          }}
-                          className={`w-full text-left text-[11px] sm:text-xs px-3 py-2 transition-colors ${
-                            pkg === targetPackage
-                              ? "bg-blue-600/20 text-blue-400 font-semibold"
-                              : "text-white/55 hover:bg-white/5 hover:text-white/90"
-                          }`}
-                        >
-                          {pkg} Goal
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Generate Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGenerate}
+                  disabled={loading || !role}
+                  className="relative flex items-center gap-1.5 text-[11px] sm:text-xs px-4 sm:px-5 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {loading ? "Generating..." : "Generate Roadmap ✨"}
+                </motion.button>
               </div>
-
-              {/* Use Resume Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setUseResume(!useResume)}
-                type="button"
-                className={`flex items-center text-[11px] sm:text-xs font-semibold gap-1.5 px-3 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-                  useResume
-                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10"
-                }`}
-              >
-                {useResume ? (
-                  <><FiCheck size={14} /> Resume</>
-                ) : (
-                  <><FiUploadCloud size={14} /> Upload Resume</>
-                )}
-              </motion.button>
-
-              {/* Generate Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleGenerate}
-                disabled={loading || !role}
-                className="relative flex items-center gap-1.5 text-[11px] sm:text-xs px-4 sm:px-5 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {loading ? "Generating..." : "Generate Roadmap ✨"}
-              </motion.button>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );
