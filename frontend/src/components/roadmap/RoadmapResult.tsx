@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { FiTarget, FiClock, FiCheckCircle, FiMap, FiX } from "react-icons/fi";
 import ModuleCard from "./ModuleCard";
 
-export default function RoadmapResult({ roadmap, onClear }) {
+export default function RoadmapResult({ roadmap, onClear }: any) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -14,7 +14,7 @@ export default function RoadmapResult({ roadmap, onClear }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden bg-[#000000]/90 backdrop-blur-2xl border border-white/10 rounded-2xl p-5 mb-5 shadow-[0_8px_32px_rgba(0,0,0,0.22)]"
+        className="relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-5 shadow-xl"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" />
 
@@ -23,7 +23,7 @@ export default function RoadmapResult({ roadmap, onClear }) {
             <p className="text-xs text-white/35 tracking-widest uppercase mb-1">Your Roadmap</p>
             <h2 className="text-xl font-bold text-white">{roadmap.title}</h2>
             <p className="text-sm text-white/45 mt-0.5">
-              Target: <span className="text-violet-400 font-medium">{roadmap.package}</span>
+              Target: <span className="text-blue-400 font-medium">{roadmap.package}</span>
             </p>
           </div>
           <button
@@ -57,7 +57,7 @@ export default function RoadmapResult({ roadmap, onClear }) {
           <FiMap size={12} /> Learning Modules
         </p>
         <div className="flex flex-col gap-2">
-          {roadmap.modules.map((mod, i) => (
+          {roadmap.modules.map((mod: any, i: number) => (
             <ModuleCard key={mod.title} mod={mod} index={i} />
           ))}
         </div>
