@@ -1,40 +1,34 @@
 import { FiDownload } from "react-icons/fi";
 import { useReactToPrint } from "react-to-print";
 import api from "../../utils/axios";
-import { useCoins } from "../../api/user.api";
-
-
-
+import { getCurrentUser } from "../../api/user.api";
 
 export default function DownloadButton({
   resumeRef,
-  user,
   setUser,
-}) {
+}: any) {
 
   const handlePrint = useReactToPrint({
     contentRef: resumeRef,
-    documentTitle: "Fresher.AI",
+    documentTitle: "PrepSphere",
   });
 
   const handleDownload = async () => {
     try {
 
-      // Deduct 10 Coins
-      const response = await useCoins( {
-          coins: 10,
-          action: "resume-builder",
-        })
-      // Update User Coins
-      setUser((prev) => ({
-        ...prev,
-        interviewCoin: response.interviewCoin,
-      }));
+      // Deduct 10 Coins via Backend
+      await api.post("/api/resume/charge-download");
+
+      // Fetch updated user stats since coins were deducted by the backend
+      const meRes = await getCurrentUser();
+      if (meRes?.user) {
+        setUser(meRes.user);
+      }
 
       // Download PDF
       handlePrint();
 
-    } catch (error) {
+    } catch (error: any) {
 
       if (error.response?.status === 403) {
         return alert("Not enough Interview Coins.");
