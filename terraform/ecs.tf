@@ -192,7 +192,10 @@ resource "aws_service_discovery_service" "auth_service" {
   name = "auth-service"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
@@ -253,7 +256,10 @@ resource "aws_service_discovery_service" "billing_service" {
   name = "billing-service"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
@@ -314,7 +320,10 @@ resource "aws_service_discovery_service" "interview_service" {
   name = "interview-service"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
@@ -373,7 +382,10 @@ resource "aws_service_discovery_service" "resume_service" {
   name = "resume-service"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
@@ -432,7 +444,10 @@ resource "aws_service_discovery_service" "roadmap_service" {
   name = "roadmap-service"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
@@ -491,7 +506,10 @@ resource "aws_service_discovery_service" "gateway" {
   name = "gateway"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.main.id
-    dns_records { ttl = 10; type = "A" }
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
   }
 }
 
