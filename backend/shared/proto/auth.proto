@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+message VerifyTokenRequest {
+  string sessionId = 1;
+}
+
+message VerifyTokenResponse {
+  string userId = 1;
+  string email = 2;
+  string name = 3;
+  int32 interviewCoin = 4;
+}
