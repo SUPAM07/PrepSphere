@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   FiArrowRight, FiClock, FiMessageSquare,
@@ -11,14 +11,19 @@ import femaleVideo from "../../assets/female-ai.mp4";
 import CodeEditorPanel from "./CodeEditorPanel";
 import { submitAnswer } from "../../api/interview.api";
 
-function Step2Interview({ interviewData, user }) {
+interface Step2InterviewProps {
+  interviewData: any;
+  user: any;
+}
+
+function Step2Interview({ interviewData, user }: Step2InterviewProps) {
   const navigate = useNavigate();
 
   // ── State ──
   const [question, setQuestion]         = useState(interviewData.question);
   const [currentIndex, setCurrentIndex] = useState(interviewData.currentQuestion || 0);
   const [answer, setAnswer]             = useState("");
-  const [feedback, setFeedback]         = useState(null);
+  const [feedback, setFeedback]         = useState<any>(null);
   const [loading, setLoading]           = useState(false);
   const [timeLeft, setTimeLeft]         = useState(interviewData.question.timer || 60);
   const [timerActive, setTimerActive]   = useState(true); // paused once the answer is submitted
@@ -31,15 +36,15 @@ function Step2Interview({ interviewData, user }) {
   // Speech
   const [isAIPlaying, setIsAIPlaying]     = useState(false);
   const [subtitle, setSubtitle]           = useState("");
-  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [voiceGender, setVoiceGender]     = useState("female");
   const [introSpoken, setIntroSpoken]     = useState(false);
 
   // Refs
-  const aiVideoRef    = useRef(null);
-  const userVideoRef  = useRef(null);
-  const recognitionRef = useRef(null);
-  const streamRef      = useRef(null);
+  const aiVideoRef    = useRef<HTMLVideoElement>(null);
+  const userVideoRef  = useRef<HTMLVideoElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const streamRef      = useRef<MediaStream | null>(null);
 
   const videoSource  = voiceGender === "male" ? maleVideo : femaleVideo;
   const userName     = user?.name || "there";
@@ -70,11 +75,11 @@ function Step2Interview({ interviewData, user }) {
   // ── Speech recognition ──
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window)) return;
-    const rec = new window.webkitSpeechRecognition();
+    const rec = new (window as any).webkitSpeechRecognition();
     rec.lang = "en-US";
     rec.continuous = true;
     rec.interimResults = false;
-    rec.onresult = (e) => {
+    rec.onresult = (e: any) => {
       const t = e.results[e.results.length - 1][0].transcript;
       setAnswer((prev) => prev + " " + t);
     };
@@ -113,8 +118,8 @@ function Step2Interview({ interviewData, user }) {
   };
 
   // ── Speak ──
-  const speakText = (text) =>
-    new Promise((resolve) => {
+  const speakText = (text: string) =>
+    new Promise<void>((resolve) => {
       if (!window.speechSynthesis || !selectedVoice || !text?.trim()) { resolve(); return; }
 
       // Cancel anything currently speaking first.
@@ -131,14 +136,20 @@ function Step2Interview({ interviewData, user }) {
         utter.rate   = 0.92;
         utter.pitch  = 1.05;
         utter.volume = 1;
-        utter.onstart = () => {
-          setIsAIPlaying(true);
-          // Pause recognition only while AI is actually speaking, so it
-          // doesn't capture the AI's own voice. This doesn't change micOn.
-          stopMic();
-          aiVideoRef.current?.play();
-        };
-        utter.onend = () => {
+
+        // Safety fallback: Chrome sometimes never fires onend.
+        // Estimate ~80ms per character + 2s buffer, then force-resolve.
+        const safetyMs = Math.max(5000, text.length * 80 + 2000);
+        const fallbackTimer = setTimeout(() => {
+          aiVideoRef.current?.pause();
+          if (aiVideoRef.current) aiVideoRef.current.currentTime = 0;
+          setIsAIPlaying(false);
+          setSubtitle("");
+          resolve();
+        }, safetyMs);
+
+        const finish = () => {
+          clearTimeout(fallbackTimer);
           aiVideoRef.current?.pause();
           if (aiVideoRef.current) aiVideoRef.current.currentTime = 0;
           setIsAIPlaying(false);
@@ -146,6 +157,17 @@ function Step2Interview({ interviewData, user }) {
           if (micOn) startMic();
           setTimeout(() => { setSubtitle(""); resolve(); }, 300);
         };
+
+        utter.onstart = () => {
+          setIsAIPlaying(true);
+          // Pause recognition only while AI is actually speaking, so it
+          // doesn't capture the AI's own voice. This doesn't change micOn.
+          stopMic();
+          aiVideoRef.current?.play();
+        };
+        utter.onend   = finish;
+        utter.onerror = () => { finish(); };
+
         setSubtitle(text);
         window.speechSynthesis.speak(utter);
       }, 150);
@@ -193,7 +215,7 @@ function Step2Interview({ interviewData, user }) {
   // ── Timer countdown ──
   useEffect(() => {
     if (timeLeft <= 0 || !timerActive) return;
-    const t = setInterval(() => setTimeLeft((p) => p - 1), 1000);
+    const t = setInterval(() => setTimeLeft((p: number) => p - 1), 1000);
     return () => clearInterval(t);
   }, [timeLeft, timerActive]);
 
@@ -207,6 +229,13 @@ function Step2Interview({ interviewData, user }) {
         setLoading(true);
         const res = await submitAnswer({ interviewId: interviewData.interviewId, answer: finalAnswer });
           
+        if (!res) {
+          alert("Failed to submit answer. Please try again.");
+          setLoading(false);
+          setTimerActive(true);
+          return;
+        }
+
         if (res.completed) {
           setFeedback(res.feedback);
           await new Promise((r) => setTimeout(r, 700));
@@ -245,6 +274,13 @@ function Step2Interview({ interviewData, user }) {
       setLoading(true);
       const res = await submitAnswer({ interviewId: interviewData.interviewId, answer })
        
+      if (!res) {
+        alert("Failed to submit answer. Please try again.");
+        setLoading(false);
+        setTimerActive(true);
+        return;
+      }
+
       if (res.completed) {
         setFeedback(res.feedback);
         await new Promise((r) => setTimeout(r, 700));
@@ -272,7 +308,7 @@ function Step2Interview({ interviewData, user }) {
   };
 
   // ── Code editor → append to answer ──
-  const handleCodeSubmit = (code) => {
+  const handleCodeSubmit = (code: string) => {
     setAnswer((prev) => {
       const separator = prev.trim() ? "\n\n--- Code ---\n" : "--- Code ---\n";
       return prev + separator + code;
@@ -303,7 +339,7 @@ function Step2Interview({ interviewData, user }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-5xl bg-[#0E1016] border border-white/10 rounded-2xl sm:rounded-[24px] overflow-hidden shadow-[0_0_60px_rgba(255,255,255,.03)] grid lg:grid-cols-[36%_64%]"
+        className="w-full max-w-5xl bg-zinc-900 border border-zinc-800 rounded-2xl sm:rounded-[24px] overflow-hidden shadow-2xl grid lg:grid-cols-[36%_64%]"
       >
 
         {/* ── LEFT: AI Video + User Camera + Controls ── */}
@@ -354,7 +390,7 @@ function Step2Interview({ interviewData, user }) {
           </div>
 
           {/* User Camera / Initial Box */}
-          <div className="relative rounded-xl overflow-hidden bg-[#17181E] border border-white/8 aspect-video flex items-center justify-center">
+          <div className="relative rounded-xl overflow-hidden bg-zinc-800 border border-white/8 aspect-video flex items-center justify-center">
             {cameraOn ? (
               <>
                 <video
@@ -452,7 +488,7 @@ function Step2Interview({ interviewData, user }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             key={question?.question}
-            className="relative overflow-hidden rounded-xl bg-[#17181E] border border-white/8 p-4 sm:p-5 mb-4"
+            className="relative overflow-hidden rounded-xl bg-zinc-800 border border-white/8 p-4 sm:p-5 mb-4"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none" />
             <div className="relative flex items-center gap-2.5 mb-3">
@@ -472,7 +508,7 @@ function Step2Interview({ interviewData, user }) {
             </div>
             <div className="w-full h-1 rounded-full bg-white/10 overflow-hidden">
               <div
-                className="h-full bg-white rounded-full transition-all duration-500"
+                className="h-full bg-blue-600 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(37,99,235,0.5)]"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -484,10 +520,10 @@ function Step2Interview({ interviewData, user }) {
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              onKeyDown={(e) => { if (e.ctrlKey && e.key === "Enter") submitAnswer(); }}
+              onKeyDown={(e) => { if (e.ctrlKey && e.key === "Enter") submit(); }}
               rows={5}
               placeholder="Write your answer here… or speak if mic is on"
-              className="flex-1 w-full rounded-xl bg-[#17181E] border border-white/8 p-4 text-sm text-white outline-none resize-none focus:border-white/25 transition placeholder-white/20"
+              className="flex-1 w-full rounded-xl bg-zinc-800 border border-white/8 p-4 text-sm text-white outline-none resize-none focus:border-blue-500 transition placeholder-white/20"
             />
           </div>
 
@@ -521,7 +557,7 @@ function Step2Interview({ interviewData, user }) {
               whileTap={{ scale: 0.98 }}
               disabled={loading || !answer.trim()}
               onClick={submit}
-              className="ml-auto h-10 min-w-[150px] justify-center px-5 rounded-xl bg-white text-black text-sm font-semibold flex items-center gap-2 disabled:opacity-40 transition"
+              className="ml-auto h-10 min-w-[150px] justify-center px-5 rounded-xl bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:bg-blue-700 text-sm font-semibold flex items-center gap-2 disabled:opacity-40 transition"
             >
               {loading ? (
                 <>
