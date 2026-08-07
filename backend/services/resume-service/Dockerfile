@@ -1,7 +1,6 @@
-FROM node
+FROM node:20-slim
 
 WORKDIR /app
-
 
 COPY package*.json ./
 RUN npm install
@@ -11,9 +10,12 @@ RUN cd services/resume-service && npm install
 
 COPY services/resume-service ./services/resume-service
 COPY shared ./shared
+COPY tsconfig.base.json ./
 
 WORKDIR /app/services/resume-service
 
-EXPOSE 8003
+RUN npx tsc
 
-CMD [ "npm","start" ]
+EXPOSE 8004
+
+CMD [ "node", "dist/services/resume-service/index.js" ]
