@@ -33,3 +33,13 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Global Grid & Glow */
+.bg-grid-glow {
+  background-color: #fafafa;
+  background-image: 
+    radial-gradient(ellipse at top, rgba(37, 99, 235, 0.15) 0%, transparent 60%),
+    linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
