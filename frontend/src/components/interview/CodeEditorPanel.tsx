@@ -5,7 +5,7 @@ import { FiX, FiPlay, FiTerminal } from "react-icons/fi";
 
 const LANG_OPTIONS = ["javascript", "python", "java", "cpp", "typescript"];
 
-const DEFAULT_CODE = {
+const DEFAULT_CODE: Record<string, string> = {
   javascript: `// Write your solution here
 function solution() {
   // your code
@@ -29,13 +29,13 @@ int main() {
 }`,
 };
 
-export default function CodeEditorPanel({ open, onClose, onSubmitCode }) {
+export default function CodeEditorPanel({ open, onClose, onSubmitCode }: any) {
   const [lang, setLang]       = useState("javascript");
   const [code, setCode]       = useState(DEFAULT_CODE["javascript"]);
   const [output, setOutput]   = useState("");
   const [running, setRunning] = useState(false);
 
-  const handleLangChange = (l) => {
+  const handleLangChange = (l: string) => {
     setLang(l);
     setCode(DEFAULT_CODE[l] || "");
     setOutput("");
@@ -49,14 +49,14 @@ export default function CodeEditorPanel({ open, onClose, onSubmitCode }) {
     setRunning(true);
     setOutput("");
     await new Promise((r) => setTimeout(r, 300));
-    const logs = [];
+    const logs: any[] = [];
     const originalLog = console.log;
     console.log = (...args) => logs.push(args.map(String).join(" "));
     try {
       // eslint-disable-next-line no-new-func
       new Function(code)();
       setOutput(logs.length ? logs.join("\n") : "✓ Code ran with no output.");
-    } catch (err) {
+    } catch (err: any) {
       setOutput(`✗ Error: ${err.message}`);
     } finally {
       console.log = originalLog;
