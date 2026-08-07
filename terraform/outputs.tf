@@ -20,7 +20,7 @@ output "s3_bucket_name" {
 
 output "ecr_repository_urls" {
   value = {
-    for service, repo in aws_ecr_repository.repo : service => repo.repository_url
+    for service, repo in data.aws_ecr_repository.repo : service => repo.repository_url
   }
   description = "ECR Repository URLs for container image uploads"
 }
