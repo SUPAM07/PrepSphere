@@ -22,7 +22,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: ["http://localhost:5173", "http://localhost:3000", "http://prepsphere-frontend-production.s3-website.eu-north-1.amazonaws.com"],
     credentials: true,
   })
 );
