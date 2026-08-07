@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import axios from "axios";
-
 import {
   FiArrowLeft,
   FiArrowRight,
@@ -12,22 +10,23 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "../../redux/hooks";
 
 import { setResume } from "../../redux/resumeSlice";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/axios";
 import { startInterview } from "../../api/interview.api";
-import { useCoins } from "../../api/user.api";
+import { getCurrentUser } from "../../api/user.api";
 
-function Step1SetUp({ user, setUser }) {
+function Step1SetUp({ user, setUser }: any) {
   const dispatch = useDispatch();
-  const { resume } = useSelector((state) => state.resume);
+  const { resume } = useAppSelector((state: any) => state.resume);
 
   const [role, setRole]         = useState("");
   const [type, setType]         = useState("technical");
   const [useResume, setUseResume] = useState(!!resume);
-  const [file, setFile]         = useState(null);
+  const [file, setFile]         = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [starting, setStarting] = useState(false);
 
@@ -35,16 +34,13 @@ function Step1SetUp({ user, setUser }) {
 
   useEffect(() => {
     setUseResume(!!resume);
-    if (resume?.role) setRole(resume.role);
+    if (resume?.suggestedRole || resume?.role) setRole(resume.suggestedRole || resume.role || "");
   }, [resume]);
 
   const uploadResume = async () => {
     if (!file) return;
     try {
       setUploading(true);
-      const coinResponse = await useCoins({ coins: 10, action: "resume-score" })
-      
-      setUser((prev) => ({ ...prev, interviewCoin: coinResponse.interviewCoin }));
       const formData = new FormData();
       formData.append("resume", file);
       const response = await api.post("/api/resume/upload", formData);
@@ -57,22 +53,28 @@ function Step1SetUp({ user, setUser }) {
   };
 
   const start = async () => {
-   
-      setStarting(true);
-      const response = await startInterview({ role, type, useResume, resume })
-       
-       
-      
-      if (response) {
-        const coinResponse = await useCoins({ coins: 50, action: "interview" })
-        
-    
-        setUser((prev) => ({ ...prev, interviewCoin: coinResponse.interviewCoin }));
+    setStarting(true);
+    try {
+      const response = await startInterview({ role, type, useResume, resume });
+
+      if (!response) {
+        alert("Failed to start interview. Please try again.");
+        setStarting(false);
+        return;
       }
-      setStarting(false);
+
+      // Fetch updated user stats since coins were deducted by the backend
+      const meRes = await getCurrentUser();
+      if (meRes?.user) {
+        setUser(meRes.user);
+      }
+
       navigate(`/interview/${response.interviewId}`);
-    
-    
+    } catch (error) {
+      console.error("Start interview error:", error);
+      alert("Something went wrong. Please try again.");
+      setStarting(false);
+    }
   };
 
   return (
@@ -226,7 +228,7 @@ function Step1SetUp({ user, setUser }) {
                       : "Upload your resume to generate personalized interview questions."
                     }
                   </p>
-                  <input hidden type="file" accept=".pdf" onChange={(e) => { if (e.target.files[0]) setFile(e.target.files[0]); }} />
+                  <input hidden type="file" accept=".pdf" onChange={(e) => { if (e.target.files?.[0]) setFile(e.target.files[0]); }} />
                 </label>
 
                 {file && (
