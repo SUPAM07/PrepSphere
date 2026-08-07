@@ -33,12 +33,12 @@ export default function Sidebar({
   setCollapsed,
   mobileOpen,
   setMobileOpen,
-}) {
+}: any) {
 
   const navigate = useNavigate();
   const location = useLocation();
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
   const inner = (
@@ -52,7 +52,7 @@ export default function Sidebar({
         <div className="flex items-center gap-2.5">
           {!collapsed && (
             <>
-              <div className="w-7 h-7 rounded-lg bg-[#000000] flex items-center justify-center shrink-0 shadow-[0_4px_14px_rgba(0,0,0,0.25)]">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 shadow-[0_4px_14px_rgba(37,99,235,0.4)]">
                 <GiArtificialHive size={19} color="white" />
               </div>
 
@@ -63,7 +63,7 @@ export default function Sidebar({
                 transition={{ duration: 0.15 }}
                 className="font-extrabold text-sm tracking-tight text-[#0A0A0A] whitespace-nowrap"
               >
-                Fresher.AI
+                PrepSphere
               </motion.span>
             </>
           )}
@@ -97,7 +97,7 @@ export default function Sidebar({
           onClick={onNewInterview}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
-          className={`w-full flex items-center gap-2 bg-[#000000] text-white font-semibold rounded-lg py-2 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:bg-[#1a1a1a] ${collapsed ? "justify-center px-0" : "px-2.5"
+          className={`w-full flex items-center gap-2 bg-blue-600 text-white font-semibold rounded-lg py-2 transition-all shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:bg-blue-700 ${collapsed ? "justify-center px-0" : "px-2.5"
             }`}
         >
           <FiPlus size={14} className="shrink-0" />
@@ -150,7 +150,7 @@ export default function Sidebar({
         collapsed ? "justify-center px-0" : "px-2.5"
       } ${
         isActive
-          ? "bg-black/8 text-[#0A0A0A]"
+          ? "bg-blue-50 text-blue-600 font-semibold"
           : "text-black/45 hover:text-[#0A0A0A] hover:bg-black/5"
       }`}
     >
@@ -177,7 +177,7 @@ export default function Sidebar({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={() => navigate("/pricing")}
-      className="group flex cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-white/10 bg-[#000000]/90 backdrop-blur-2xl px-2.5 py-1.5 mb-2.5 transition-all hover:border-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+      className="group flex cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 mb-2.5 transition-all hover:border-zinc-700 shadow-sm"
     >
       <div className="flex items-center gap-1.5">
         <BsStars
@@ -215,7 +215,7 @@ export default function Sidebar({
               className="w-7 h-7 rounded-full object-cover shrink-0 border border-black/10"
             />
           ) : (
-            <div className="w-7 h-7 rounded-full bg-[#000000] flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
               <span className="text-white font-bold text-[10px]">{initials}</span>
             </div>
           )}
