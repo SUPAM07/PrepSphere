@@ -1,0 +1,64 @@
+import dotenv from "dotenv";
+dotenv.config();
+import axios from "axios";
+
+const BASE_URL = "https://www.googleapis.com/youtube/v3/search";
+
+export interface YouTubeVideoResult {
+  title: string;
+  channel: string;
+  url: string;
+}
+
+const searchVideo = async (topic: string): Promise<YouTubeVideoResult | null> => {
+  try {
+    let query = `Virtual Code ${topic}`;
+    let { data } = await axios.get(BASE_URL, {
+      params: {
+        key: process.env.YOUTUBE_API_KEY,
+        part: "snippet",
+        q: query,
+        maxResults: 1,
+        type: "video",
+      },
+    });
+
+    if (data.items.length > 0) {
+      const video = data.items[0];
+      if (video.snippet.channelTitle.toLowerCase().includes("virtual code")) {
+        return {
+          title: video.snippet.title,
+          channel: video.snippet.channelTitle,
+          url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+        };
+      }
+    }
+
+    query = `${topic} tutorial`;
+    ({ data } = await axios.get(BASE_URL, {
+      params: {
+        key: process.env.YOUTUBE_API_KEY,
+        part: "snippet",
+        q: query,
+        maxResults: 1,
+        type: "video",
+      },
+    }));
+
+    if (data.items.length > 0) {
+      const video = data.items[0];
+      return {
+        title: video.snippet.title,
+        channel: video.snippet.channelTitle,
+        url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("YouTube search error:", error);
+    return null;
+  }
+};
+
+export default searchVideo;
