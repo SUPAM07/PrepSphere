@@ -32,6 +32,7 @@ RUN cd services/billing-service && npm ci --omit=dev
 RUN apk del python3 make g++
 
 COPY --from=builder /app/services/billing-service/dist ./services/billing-service/dist
+COPY --from=builder /app/services/billing-service/drizzle ./services/billing-service/drizzle
 COPY --from=builder /app/shared ./shared
 
 WORKDIR /app/services/billing-service
