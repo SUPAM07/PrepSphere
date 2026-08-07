@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import axios from "axios";
-
 import Home from "./pages/Home";
 import Dashbord from "./pages/Dashbord";
 
@@ -12,7 +10,6 @@ import Pricing from "./pages/Pricing";
 import InterviewStart from "./pages/InterviewStart";
 import InterviewPage from "./pages/InterviewPage";
 import InterviewReport from "./pages/InterviewReport";
-import api from "./utils/axios";
 import { getCurrentUser } from "./api/user.api";
 import { setResume } from "./redux/resumeSlice";
 import { getResume } from "./api/resume.api";
@@ -21,9 +18,13 @@ import { useDispatch } from "react-redux";
 
 
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch()
 
@@ -44,15 +45,13 @@ function App() {
 
   useEffect(()=>{
      const fetchResume = async () => {
-        
-           const response = await getResume();
-           dispatch(setResume(response.data));
-         
-       };
+       if (!user) return;
+       const response = await getResume();
+       dispatch(setResume(response.data));
+     };
 
-   
-   fetchResume()
-  },[])
+     fetchResume();
+  },[user, dispatch]);
 
 
 
@@ -65,92 +64,93 @@ function App() {
   }
 
   return (
-    <Routes>
+    <>
+      <ToastContainer theme="dark" position="bottom-right" />
+      <Routes>
 
       <Route
         path="/"
         element={
           user
             ? <Navigate to="/dashboard" replace />
-            : <Home user={user} setUser={setUser} />
+            : <Home setUser={setUser} />
         }
       />
 
       <Route
         path="/dashboard"
         element={
-          user
-            ? <Dashbord user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <Dashbord user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/interview"
         element={
-          user
-            ? <InterviewStart user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <InterviewStart user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/interview/:id"
         element={
-          user
-            ? <InterviewPage user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <InterviewPage user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/interview/:id/report"
         element={
-          user
-            ? <InterviewReport user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <InterviewReport user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
-
-
 
       <Route
         path="/resume"
         element={
-          user
-            ? <ResumeBuilder user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <ResumeBuilder setUser={setUser} />
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/roadmap"
         element={
-          user
-            ? <Roadmap user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <Roadmap user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
 
       <Route
         path="/scorer"
         element={
-          user
-            ? <Scorer user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <Scorer user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
       <Route
         path="/pricing"
         element={
-          user
-            ? <Pricing user={user} setUser={setUser} />
-            : <Navigate to="/" replace />
+          <ProtectedRoute user={user}>
+            <Pricing user={user} setUser={setUser} />
+          </ProtectedRoute>
         }
       />
 
 
 
     </Routes>
+    </>
   );
 }
 
