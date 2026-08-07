@@ -10,13 +10,13 @@ export default function PricingCard({
   popular,
   disabled,
   onBuy,
-}) {
+}: any) {
   return (
     <div
       className={`relative w-full max-w-[320px] rounded-2xl overflow-hidden border p-5 transition-all
         ${popular
-          ? "border-violet-400/30 bg-[#000000]/90 backdrop-blur-2xl shadow-[0_8px_40px_rgba(124,58,237,0.2)]"
-          : "border-white/10 bg-[#000000]/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]"
+          ? "border-blue-500/40 bg-zinc-900 shadow-[0_8px_40px_rgba(37,99,235,0.2)]"
+          : "border-zinc-800 bg-zinc-900 shadow-sm"
         }`}
     >
       {/* glass sheen */}
@@ -24,11 +24,11 @@ export default function PricingCard({
 
       {/* Popular glow */}
       {popular && (
-        <div className="absolute -top-8 -right-8 w-28 h-28 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-8 -right-8 w-28 h-28 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
       )}
 
       {popular && (
-        <div className="absolute right-3 top-3 rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-semibold text-white z-10">
+        <div className="absolute right-3 top-3 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white z-10">
           Popular
         </div>
       )}
@@ -54,7 +54,7 @@ export default function PricingCard({
       </div>
 
       <div className="relative mt-3.5 space-y-1.5">
-        {features.map((item) => (
+        {features.map((item: string) => (
           <div
             key={item}
             className="flex items-center gap-2 text-xs text-white/60"
@@ -71,10 +71,10 @@ export default function PricingCard({
   className={`relative mt-5 w-full rounded-lg py-2 text-sm font-semibold transition
     ${
       disabled
-        ? "cursor-not-allowed bg-gray-700 text-gray-400"
+        ? "cursor-not-allowed bg-zinc-800 text-zinc-500"
         : popular
-        ? "bg-violet-600 hover:bg-violet-700 text-white shadow-[0_4px_14px_rgba(124,58,237,0.35)]"
-        : "bg-white/8 border border-white/15 text-white hover:border-white/30 hover:bg-white/12"
+        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-[0_4px_14px_rgba(37,99,235,0.35)]"
+        : "bg-transparent border border-white/15 text-white hover:border-white/30 hover:bg-white/10"
     }`}
 >
   {button}
