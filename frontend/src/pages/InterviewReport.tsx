@@ -7,17 +7,17 @@ import Step3Report from "../components/interview/Step3Report";
 import { getInterview } from "../api/interview.api";
 
 
-function InterviewReport({ user, setUser }) {
+function InterviewReport({ user, setUser }: any) {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [report, setReport] = useState(null);
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     const fetchReport = async () => {
      
-        const response = await getInterview(id);
+        const response = await getInterview(id!);
       
 
         const interview = response?.interview;
