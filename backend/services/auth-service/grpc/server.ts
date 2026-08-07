@@ -45,7 +45,6 @@ const authServiceImplementation: AuthServiceServer = {
         userId: user.id,
         email: user.email,
         name: user.name || "",
-        interviewCoin: (user as any).interviewCoin || 0,
       });
     } catch (error: any) {
       console.error("[gRPC] Error verifying token:", error);
