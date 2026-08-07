@@ -5,11 +5,7 @@ import PricingCard from "../components/PricingCard";
 import { FiMenu, FiX } from "react-icons/fi";
 import { useState } from "react";
 
-import axios from "axios";
 import api from "../utils/axios";
-function Coin() {
-    return <BsStars className="text-yellow-400" size={14} />;
-}
 
 const plans = [
     {
@@ -43,12 +39,12 @@ const plans = [
 ];
 
 
-export default function Pricing({ user, setUser }) {
+export default function Pricing({ user, setUser }: any) {
     const navigate = useNavigate();
     const [showMenu, setShowMenu] = useState(false);
 
 
-    const handlePayment = async (plan) => {
+    const handlePayment = async (plan: any) => {
         if (plan.disabled) return;
 
         try {
@@ -65,24 +61,19 @@ export default function Pricing({ user, setUser }) {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: result.data.order.amount,
                 currency: result.data.order.currency,
-                name: "Fresher.AI",
+                name: "PrepSphere",
                 description: `${plan.title} - ${plan.coins} Interview Coins`,
                 order_id: result.data.order.id,
 
-               handler: async function (response) {
+               handler: async function (response: any) {
     try {
-        // Verify Payment
+        // Verify Payment (this triggers the RabbitMQ event on the backend to credit coins)
         await api.post("/api/billing/verify", response);
 
-        // Add Coins
-        const coinRes = await api.post("/api/auth/add-coins", {
-            coins: plan.coins,
-        });
-
-        // Update User State
-        setUser((prev) => ({
+        // Optimistically update User State
+        setUser((prev: any) => ({
             ...prev,
-            interviewCoin: coinRes.data.interviewCoin,
+            interviewCoin: (prev?.interviewCoin || 0) + plan.coins,
         }));
 
         alert("Payment Successful 🎉");
@@ -92,7 +83,7 @@ export default function Pricing({ user, setUser }) {
         console.log(error);
 
         alert(
-            error?.response?.data?.message ||
+            (error as any)?.response?.data?.message ||
             "Payment verification failed"
         );
     }
@@ -103,7 +94,7 @@ export default function Pricing({ user, setUser }) {
                 },
             };
 
-            const razorpay = new window.Razorpay(options);
+            const razorpay = new (window as any).Razorpay(options);
             razorpay.open();
 
         } catch (err) {
@@ -124,7 +115,7 @@ export default function Pricing({ user, setUser }) {
                         className="flex cursor-pointer items-center gap-1.5"
                     >
                         <span className="text-base font-extrabold tracking-tight text-[#0A0A0A]">
-                            Fresher.AI
+                            PrepSphere
                         </span>
 
                         <span className="hidden rounded bg-black/5 px-1.5 py-0.5 text-[10px] text-black/50 sm:block">
@@ -150,7 +141,7 @@ export default function Pricing({ user, setUser }) {
                                 />
 
                                 {/* Popup — black glass */}
-                                <div className="absolute right-0 top-10 z-40 w-[240px] max-w-[calc(100vw-24px)] rounded-xl overflow-hidden bg-[#000000]/90 backdrop-blur-2xl border border-white/10 p-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+                                <div className="absolute right-0 top-10 z-40 w-[240px] max-w-[calc(100vw-24px)] rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 p-3.5 shadow-xl">
 
                                     {/* glass sheen */}
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" />
@@ -193,8 +184,8 @@ export default function Pricing({ user, setUser }) {
                                     </div>
 
                                     {/* Bottom Info */}
-                                    <div className="relative mt-3.5 rounded-lg border border-violet-400/20 bg-violet-500/10 p-2.5">
-                                        <p className="text-[10px] leading-4 text-violet-300">
+                                    <div className="relative mt-3.5 rounded-lg border border-blue-400/20 bg-blue-500/10 p-2.5">
+                                        <p className="text-[10px] leading-4 text-blue-300">
                                             Every AI feature uses Interview Coins.
                                             Buy more coins anytime to continue using
                                             Resume Builder, Resume Scorer,
