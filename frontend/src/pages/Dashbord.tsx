@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { motion } from "motion/react";
 
-import { FiPlay, FiSidebar } from "react-icons/fi";
+import { FiSidebar, FiBell, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
 
 import Sidebar from "../components/Sidebar";
 
@@ -10,7 +10,6 @@ import StatBox from "../components/Statbox";
 
 import InterviewGraph from "../components/InterviewGraph";
 
-import axios from "axios";
 
 
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,7 @@ import api from "../utils/axios";
 
 
 
-export default function Dashboard({ user, setUser }) {
+export default function Dashboard({ user, setUser }: any) {
 
   const [collapsed, setCollapsed] = useState(false);   // desktop collapse
 
@@ -80,17 +79,16 @@ export default function Dashboard({ user, setUser }) {
     
   }, []);
 
-  const handleLogout = async () => {
-   try {
-     const response = await api.get(
-       "/api/auth/logout");
-      if (response.data.success) {
-        setUser(null);
-      navigate("/");
-      }
-    } catch (error) {
-   console.log(error);
-   }
+  const handleLogout = () => {
+    // Instantly clear UI state for maximum responsiveness
+    setUser(null);
+    localStorage.removeItem("accessToken");
+    navigate("/");
+
+    // Background call to invalidate session on the server
+    api.post("/api/auth/logout").catch((error) => {
+      console.log("Background logout error:", error);
+    });
   };
   return (
 
@@ -118,61 +116,47 @@ export default function Dashboard({ user, setUser }) {
           }`}
       >
         {/* Top Bar */}
-
-        <div className="flex items-center justify-between mb-5 md:mb-6">
-
-          <div className="flex items-center gap-2.5">
-
-
-
+        <div className="flex flex-col md:flex-row md:items-start justify-between mb-5 md:mb-6 gap-4">
+          <div className="flex items-start gap-2.5">
             {/* Mobile hamburger — FiSidebar */}
-
             <motion.button
-
               whileHover={{ scale: 1.1 }}
-
               whileTap={{ scale: 0.95 }}
-
               onClick={() => setMobileOpen(true)}
-
-              className="md:hidden text-black/40 hover:text-[#0A0A0A] transition-colors"
-
+              className="md:hidden text-black/40 hover:text-[#0A0A0A] transition-colors mt-1"
             >
-
               <FiSidebar size={17} />
-
             </motion.button>
 
-
-
             <motion.div
-
               initial={{ opacity: 0, y: -12 }}
-
               animate={{ opacity: 1, y: 0 }}
-
               transition={{ duration: 0.4 }}
-
             >
-
               <p className="text-black/40 text-[11px] md:text-xs font-medium mb-0.5">
-
                 Overview
-
               </p>
-
-              <h1 className="text-lg md:text-xl font-bold text-[#0A0A0A]">
-
+              <h1 className="text-2xl md:text-3xl font-extrabold text-[#0A0A0A] tracking-tight">
                 Hello, {firstName} 👋
-
               </h1>
-
+              <p className="text-black/50 text-sm mt-1">
+                Track your progress, review performance and get interview-ready.
+              </p>
             </motion.div>
-
           </div>
 
-
-
+          {/* Top Right Controls */}
+          <div className="hidden md:flex items-center gap-3">
+            <button className="flex items-center gap-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-full text-xs font-bold transition-colors">
+              🚀 Upgrade to Pro
+            </button>
+            <button className="w-9 h-9 flex items-center justify-center rounded-full bg-black/5 text-black/60 hover:bg-black/10 transition-colors">
+              <FiBell size={15} />
+            </button>
+            <div className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
+              <span className="text-xs font-bold text-blue-700">{user?.name?.charAt(0).toUpperCase() || "U"}</span>
+            </div>
+          </div>
         </div>
 
 
@@ -254,31 +238,29 @@ export default function Dashboard({ user, setUser }) {
 
 
         {/* Graph Section */}
-
         <motion.div
-
           initial={{ opacity: 0 }}
-
           animate={{ opacity: 1 }}
-
           transition={{ duration: 0.4, delay: 0.3 }}
-
-          className="mb-3 md:mb-4"
-
+          className="mb-3 md:mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3"
         >
-
-          <p className="text-black/40 text-[10px] font-semibold uppercase tracking-widest mt-2.5 mb-1">
-
-            Performance
-
-          </p>
-
-          <h2 className="text-[#0A0A0A] font-bold text-sm md:text-base mb-3 md:mb-4">
-
-            Interview History
-
-          </h2>
-
+          <div>
+            <p className="text-blue-600 text-[10px] font-bold uppercase tracking-widest mt-2.5 mb-1">
+              PERFORMANCE
+            </p>
+            <h2 className="text-[#0A0A0A] font-extrabold text-lg md:text-xl tracking-tight">
+              Interview History
+            </h2>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-2 text-xs font-medium text-black/60 bg-white border border-black/10 hover:border-black/20 hover:text-black/80 px-3 py-1.5 rounded-lg transition-colors">
+              <FiCalendar size={13} className="text-black/40" /> All Interviews <FiChevronDown size={14} className="text-black/40" />
+            </button>
+            <button className="flex items-center gap-2 text-xs font-medium text-black/60 bg-white border border-black/10 hover:border-black/20 hover:text-black/80 px-3 py-1.5 rounded-lg transition-colors">
+              <FiClock size={13} className="text-black/40" /> Last 30 Days <FiChevronDown size={14} className="text-black/40" />
+            </button>
+          </div>
         </motion.div>
 
 
