@@ -10,6 +10,7 @@ export const gatewayEnvSchema = z.object({
   RESUME_SERVICE_URL: z.string().default("http://localhost:8003"),
   ROADMAP_SERVICE_URL: z.string().default("http://localhost:8004"),
   BILLING_SERVICE_URL: z.string().default("http://localhost:8005"),
+  FRONTEND_URL: z.string().default("http://localhost:5173"),
 });
 
 export type GatewayEnv = z.infer<typeof gatewayEnvSchema>;

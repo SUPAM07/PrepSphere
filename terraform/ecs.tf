@@ -534,7 +534,8 @@ resource "aws_ecs_task_definition" "gateway" {
         { name = "BILLING_SERVICE_URL", value = "http://billing-service.service.local:8002" },
         { name = "INTERVIEW_SERVICE_URL", value = "http://interview-service.service.local:8003" },
         { name = "RESUME_SERVICE_URL", value = "http://resume-service.service.local:8004" },
-        { name = "ROADMAP_SERVICE_URL", value = "http://roadmap-service.service.local:8005" }
+        { name = "ROADMAP_SERVICE_URL", value = "http://roadmap-service.service.local:8005" },
+        { name = "FRONTEND_URL", value = "http://${aws_s3_bucket_website_configuration.frontend.website_endpoint}" }
       ])
       logConfiguration = {
         logDriver = "awslogs"
