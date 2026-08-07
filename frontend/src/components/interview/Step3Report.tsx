@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { motion } from "motion/react";
 
 import {
@@ -15,14 +15,14 @@ function Step3Report({
   report,
   user,
   setUser,
-}) {
+}: any) {
 
   const reportRef = useRef(null);
   const navigate = useNavigate()
 
   return (
 
-    <div className="min-h-screen bg-white flex items-center justify-center md:p-5">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-start md:py-10 md:px-5">
 
       <motion.div
 
@@ -214,7 +214,7 @@ function Step3Report({
 
                   {report.strengths?.length > 0 ? (
 
-                    report.strengths.map((item, index) => (
+                    report.strengths.map((item: any, index: number) => (
 
                       <div
                         key={index}
@@ -275,7 +275,7 @@ function Step3Report({
 
                   {report.weaknesses?.length > 0 ? (
 
-                    report.weaknesses.map((item, index) => (
+                    report.weaknesses.map((item: any, index: number) => (
 
                       <div
                         key={index}
@@ -325,7 +325,7 @@ function Step3Report({
 
                 {report.recommendations?.length > 0 ? (
 
-                  report.recommendations.map((item, index) => (
+                  report.recommendations.map((item: any, index: number) => (
 
                     <div
                       key={index}
@@ -374,7 +374,7 @@ function Step3Report({
 
               <div className="space-y-5">
 
-                {report.questions?.map((item, index) => (
+                {report.questions?.map((item: any, index: number) => (
 
                   <motion.div
 
@@ -519,7 +519,7 @@ function Step3Report({
 
                         <div className="mt-3.5 space-y-2.5">
 
-                          {item.feedback.improvements.map((tip, i) => (
+                          {item.feedback.improvements.map((tip: any, i: number) => (
 
                             <div
                               key={i}
