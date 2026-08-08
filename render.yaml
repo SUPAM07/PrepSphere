@@ -10,9 +10,19 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: AUTH_SERVICE_URL
+        value: "http://prepsphere-auth:10000"
+      - key: BILLING_SERVICE_URL
+        value: "http://prepsphere-billing:10000"
+      - key: INTERVIEW_SERVICE_URL
+        value: "http://prepsphere-interview:10000"
+      - key: RESUME_SERVICE_URL
+        value: "http://prepsphere-resume:10000"
+      - key: ROADMAP_SERVICE_URL
+        value: "http://prepsphere-roadmap:10000"
 
   - type: web
     name: prepsphere-auth
@@ -23,9 +33,15 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: POSTGRES_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
 
   - type: web
     name: prepsphere-billing
@@ -36,9 +52,19 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: POSTGRES_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
 
   - type: web
     name: prepsphere-interview
@@ -49,9 +75,17 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
 
   - type: web
     name: prepsphere-resume
@@ -62,9 +96,17 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
 
   - type: web
     name: prepsphere-roadmap
@@ -75,6 +117,14 @@ services:
     plan: free
     envVars:
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: NODE_ENV
-        value: production
+        value: "production"
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
