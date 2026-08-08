@@ -105,7 +105,7 @@ jobs:
           set -e
           aws ecs wait services-stable \
             --cluster ${{ steps.tf-outputs.outputs.ecs_cluster }} \
-            --services gateway auth-service billing-service interview-service resume-service roadmap-service
+            --services prepsphere-gateway-production prepsphere-auth-service-production prepsphere-billing-service-production prepsphere-interview-service-production prepsphere-resume-service-production prepsphere-roadmap-service-production
 
       - name: API Smoke Test
         run: |
