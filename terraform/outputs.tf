@@ -19,3 +19,8 @@ output "ecr_repository_urls" {
   }
   description = "ECR Repository URLs for container image uploads"
 }
+
+output "ecs_cluster_name" {
+  value       = aws_ecs_cluster.main.name
+  description = "Name of the ECS Cluster"
+}

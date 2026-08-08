@@ -211,7 +211,7 @@ resource "aws_ecs_task_definition" "auth_service" {
   container_definitions = jsonencode([
     {
       name      = "auth-service"
-      image     = "${aws_ecr_repository.repo["auth-service"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["auth-service"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [
         { containerPort = 8001, hostPort = 8001 },
@@ -276,7 +276,7 @@ resource "aws_ecs_task_definition" "billing_service" {
   container_definitions = jsonencode([
     {
       name      = "billing-service"
-      image     = "${aws_ecr_repository.repo["billing-service"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["billing-service"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{ containerPort = 8002, hostPort = 8002 }]
       environment = concat(local.shared_env, [
@@ -341,7 +341,7 @@ resource "aws_ecs_task_definition" "interview_service" {
   container_definitions = jsonencode([
     {
       name      = "interview-service"
-      image     = "${aws_ecr_repository.repo["interview-service"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["interview-service"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{ containerPort = 8003, hostPort = 8003 }]
       environment = concat(local.shared_env, [
@@ -404,7 +404,7 @@ resource "aws_ecs_task_definition" "resume_service" {
   container_definitions = jsonencode([
     {
       name      = "resume-service"
-      image     = "${aws_ecr_repository.repo["resume-service"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["resume-service"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{ containerPort = 8004, hostPort = 8004 }]
       environment = concat(local.shared_env, [
@@ -467,7 +467,7 @@ resource "aws_ecs_task_definition" "roadmap_service" {
   container_definitions = jsonencode([
     {
       name      = "roadmap-service"
-      image     = "${aws_ecr_repository.repo["roadmap-service"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["roadmap-service"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{ containerPort = 8005, hostPort = 8005 }]
       environment = concat(local.shared_env, [
@@ -530,7 +530,7 @@ resource "aws_ecs_task_definition" "gateway" {
   container_definitions = jsonencode([
     {
       name      = "gateway"
-      image     = "${aws_ecr_repository.repo["gateway"].repository_url}:latest"
+      image     = "${aws_ecr_repository.repo["gateway"].repository_url}:${var.image_tag}"
       essential = true
       portMappings = [{ containerPort = 8000, hostPort = 8000 }]
       environment = concat(local.shared_env, [

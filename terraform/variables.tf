@@ -16,6 +16,12 @@ variable "environment" {
   default     = "production"
 }
 
+variable "image_tag" {
+  type        = string
+  description = "Docker image tag to deploy (usually the git commit SHA)"
+  default     = "latest"
+}
+
 # Environment secrets for Task Definitions
 variable "mongodb_url" {
   type        = string

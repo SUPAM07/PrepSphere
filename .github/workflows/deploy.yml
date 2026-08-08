@@ -1,7 +1,10 @@
 name: AWS Deployment Orchestration
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches:
       - main
 
@@ -10,45 +13,17 @@ env:
   PROJECT_NAME: prepsphere
 
 jobs:
-  infrastructure-ecr:
-    name: Provision ECR Repositories
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        working-directory: ./terraform
-        run: terraform init
-
-      - name: Terraform Apply (ECR Target Only)
-        working-directory: ./terraform
-        env:
-          TF_VAR_mongodb_url: ${{ secrets.MONGODB_URL }}
-          TF_VAR_postgres_url: ${{ secrets.POSTGRES_URL }}
-          TF_VAR_groq_api_key: ${{ secrets.GROQ_API_KEY }}
-          TF_VAR_razorpay_key_id: ${{ secrets.RAZORPAY_KEY_ID }}
-          TF_VAR_razorpay_key_secret: ${{ secrets.RAZORPAY_KEY_SECRET }}
-          TF_VAR_razorpay_webhook_secret: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
-        run: terraform apply -target=aws_ecr_repository.repo -auto-approve
-
   build-backend:
     name: Build & Push Backend Services to ECR
-    needs: infrastructure-ecr
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service: [gateway, auth-service, billing-service, interview-service, resume-service, roadmap-service]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -63,7 +38,7 @@ jobs:
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
         run: |
           docker build -t $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG -f backend/${{ matrix.service != 'gateway' && 'services/' || '' }}${{ matrix.service }}/Dockerfile backend/
           docker push $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG
@@ -77,6 +52,8 @@ jobs:
       s3_bucket: ${{ steps.tf-outputs.outputs.s3_bucket }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -87,20 +64,33 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Terraform Format Check
+        working-directory: ./terraform
+        run: terraform fmt -check -recursive
+
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init
 
-      - name: Terraform Apply
+      - name: Terraform Validate
+        working-directory: ./terraform
+        run: terraform validate
+
+      - name: Terraform Plan
         working-directory: ./terraform
         env:
+          TF_VAR_image_tag: ${{ github.event.workflow_run.head_sha }}
           TF_VAR_mongodb_url: ${{ secrets.MONGODB_URL }}
           TF_VAR_postgres_url: ${{ secrets.POSTGRES_URL }}
           TF_VAR_groq_api_key: ${{ secrets.GROQ_API_KEY }}
           TF_VAR_razorpay_key_id: ${{ secrets.RAZORPAY_KEY_ID }}
           TF_VAR_razorpay_key_secret: ${{ secrets.RAZORPAY_KEY_SECRET }}
           TF_VAR_razorpay_webhook_secret: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
-        run: terraform apply -auto-approve
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply tfplan
 
       - name: Extract Terraform Outputs
         id: tf-outputs
@@ -108,6 +98,19 @@ jobs:
         run: |
           echo "alb_dns=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
           echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+          echo "ecs_cluster=$(terraform output -raw ecs_cluster_name)" >> $GITHUB_OUTPUT
+
+      - name: Wait for ECS Stability
+        run: |
+          set -e
+          aws ecs wait services-stable \
+            --cluster ${{ steps.tf-outputs.outputs.ecs_cluster }} \
+            --services gateway auth-service billing-service interview-service resume-service roadmap-service
+
+      - name: API Smoke Test
+        run: |
+          set -e
+          curl --fail --retry 5 --retry-delay 5 http://${{ steps.tf-outputs.outputs.alb_dns }}/health
 
   build-frontend:
     name: Build & Deploy Frontend to S3
@@ -115,6 +118,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
