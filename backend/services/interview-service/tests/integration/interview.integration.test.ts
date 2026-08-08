@@ -17,7 +17,7 @@ vi.mock('../../model/interview.model.js', () => ({
 vi.mock('../../../../shared/redis/redis.js', () => ({
   default: {
     get: vi.fn(),
-    set: vi.fn(),
+    set: vi.fn().mockResolvedValue('OK'),
     setex: vi.fn(),
     del: vi.fn(),
   },

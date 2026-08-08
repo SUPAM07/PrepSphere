@@ -1,0 +1,80 @@
+version: "1"
+
+services:
+  - type: web
+    name: prepsphere-gateway
+    env: node
+    rootDir: backend/gateway
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: prepsphere-auth
+    env: node
+    rootDir: backend/services/auth-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: prepsphere-billing
+    env: node
+    rootDir: backend/services/billing-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: prepsphere-interview
+    env: node
+    rootDir: backend/services/interview-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: prepsphere-resume
+    env: node
+    rootDir: backend/services/resume-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: prepsphere-roadmap
+    env: node
+    rootDir: backend/services/roadmap-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production

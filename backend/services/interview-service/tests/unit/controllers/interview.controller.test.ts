@@ -21,7 +21,7 @@ vi.mock('../../../graph/graph.js', () => ({
 vi.mock('../../../../../shared/redis/redis.js', () => ({
   default: {
     get: vi.fn(),
-    set: vi.fn(),
+    set: vi.fn().mockResolvedValue('OK'),
     del: vi.fn(),
   },
 }));
