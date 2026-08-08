@@ -20,14 +20,16 @@ resource "aws_lb_target_group" "gateway" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
 
+  deregistration_delay = 10
+
   health_check {
     path                = "/"
     protocol            = "HTTP"
     matcher             = "200"
-    interval            = 30
+    interval            = 10
     timeout             = 5
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
   }
 
   tags = {
