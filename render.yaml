@@ -1,5 +1,25 @@
 version: "1"
 
+envVarGroups:
+  - name: prepsphere-secrets
+    envVars:
+      - key: POSTGRES_URL
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
 services:
   - type: web
     name: prepsphere-gateway
@@ -31,17 +51,12 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
+    fromGroup: prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: "production"
-      - key: POSTGRES_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: RABBITMQ_URL
-        sync: false
 
   - type: web
     name: prepsphere-billing
@@ -50,21 +65,12 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
+    fromGroup: prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: "production"
-      - key: POSTGRES_URL
-        sync: false
-      - key: RABBITMQ_URL
-        sync: false
-      - key: RAZORPAY_KEY_ID
-        sync: false
-      - key: RAZORPAY_KEY_SECRET
-        sync: false
-      - key: RAZORPAY_WEBHOOK_SECRET
-        sync: false
 
   - type: web
     name: prepsphere-interview
@@ -73,19 +79,12 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
+    fromGroup: prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: "production"
-      - key: MONGODB_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: RABBITMQ_URL
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
 
   - type: web
     name: prepsphere-resume
@@ -94,19 +93,12 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
+    fromGroup: prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: "production"
-      - key: MONGODB_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: RABBITMQ_URL
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
 
   - type: web
     name: prepsphere-roadmap
@@ -115,16 +107,9 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
+    fromGroup: prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: "production"
-      - key: MONGODB_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: RABBITMQ_URL
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
