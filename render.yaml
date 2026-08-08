@@ -51,7 +51,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
-    fromGroup: prepsphere-secrets
+    envVarGroups:
+      - prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
@@ -65,7 +66,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
-    fromGroup: prepsphere-secrets
+    envVarGroups:
+      - prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
@@ -79,7 +81,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
-    fromGroup: prepsphere-secrets
+    envVarGroups:
+      - prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
@@ -93,7 +96,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
-    fromGroup: prepsphere-secrets
+    envVarGroups:
+      - prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
@@ -107,7 +111,8 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
-    fromGroup: prepsphere-secrets
+    envVarGroups:
+      - prepsphere-secrets
     envVars:
       - key: PORT
         value: "10000"
