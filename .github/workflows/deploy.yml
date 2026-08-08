@@ -35,13 +35,31 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push Docker image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG -f backend/${{ matrix.service != 'gateway' && 'services/' || '' }}${{ matrix.service }}/Dockerfile backend/
-          docker push $ECR_REGISTRY/${{ matrix.service }}:$IMAGE_TAG
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/${{ matrix.service == 'gateway' && 'gateway' || format('services/{0}', matrix.service) }}/Dockerfile
+          load: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.service }}:${{ github.event.workflow_run.head_sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.service }}:${{ github.event.workflow_run.head_sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Docker image
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ matrix.service }}:${{ github.event.workflow_run.head_sha }}
 
   infrastructure-app:
     name: Provision App Infrastructure (ECS, ALB, S3)
@@ -75,6 +93,13 @@ jobs:
       - name: Terraform Validate
         working-directory: ./terraform
         run: terraform validate
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform
+          soft_fail: true # Temporary soft fail so we don't break existing deployments due to missing KMS keys on S3 etc.
+          framework: terraform
 
       - name: Terraform Plan
         working-directory: ./terraform
@@ -131,6 +156,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install Dependencies
         working-directory: ./frontend
