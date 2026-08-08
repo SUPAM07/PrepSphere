@@ -278,9 +278,9 @@ resource "aws_ecs_task_definition" "billing_service" {
       name         = "billing-service"
       image        = "${aws_ecr_repository.repo["billing-service"].repository_url}:${var.image_tag}"
       essential    = true
-      portMappings = [{ containerPort = 8002, hostPort = 8002 }]
+      portMappings = [{ containerPort = 8005, hostPort = 8005 }]
       environment = concat(local.shared_env, [
-        { name = "PORT", value = "8002" },
+        { name = "PORT", value = "8005" },
         { name = "POSTGRES_URL", value = var.postgres_url },
         { name = "RAZORPAY_KEY_ID", value = var.razorpay_key_id },
         { name = "RAZORPAY_KEY_SECRET", value = var.razorpay_key_secret },
@@ -343,9 +343,9 @@ resource "aws_ecs_task_definition" "interview_service" {
       name         = "interview-service"
       image        = "${aws_ecr_repository.repo["interview-service"].repository_url}:${var.image_tag}"
       essential    = true
-      portMappings = [{ containerPort = 8003, hostPort = 8003 }]
+      portMappings = [{ containerPort = 8002, hostPort = 8002 }]
       environment = concat(local.shared_env, [
-        { name = "PORT", value = "8003" },
+        { name = "PORT", value = "8002" },
         { name = "MONGODB_URL", value = var.mongodb_url },
         { name = "GROQ_API_KEY", value = var.groq_api_key }
       ])
@@ -469,9 +469,9 @@ resource "aws_ecs_task_definition" "roadmap_service" {
       name         = "roadmap-service"
       image        = "${aws_ecr_repository.repo["roadmap-service"].repository_url}:${var.image_tag}"
       essential    = true
-      portMappings = [{ containerPort = 8005, hostPort = 8005 }]
+      portMappings = [{ containerPort = 8003, hostPort = 8003 }]
       environment = concat(local.shared_env, [
-        { name = "PORT", value = "8005" },
+        { name = "PORT", value = "8003" },
         { name = "MONGODB_URL", value = var.mongodb_url },
         { name = "GROQ_API_KEY", value = var.groq_api_key }
       ])
@@ -536,10 +536,10 @@ resource "aws_ecs_task_definition" "gateway" {
       environment = concat(local.shared_env, [
         { name = "AUTH_SERVICE_URL", value = "http://auth-service.service.local:8001" },
         { name = "AUTH_SERVICE_GRPC_URL", value = "auth-service.service.local:50051" },
-        { name = "BILLING_SERVICE_URL", value = "http://billing-service.service.local:8002" },
-        { name = "INTERVIEW_SERVICE_URL", value = "http://interview-service.service.local:8003" },
+        { name = "BILLING_SERVICE_URL", value = "http://billing-service.service.local:8005" },
+        { name = "INTERVIEW_SERVICE_URL", value = "http://interview-service.service.local:8002" },
         { name = "RESUME_SERVICE_URL", value = "http://resume-service.service.local:8004" },
-        { name = "ROADMAP_SERVICE_URL", value = "http://roadmap-service.service.local:8005" },
+        { name = "ROADMAP_SERVICE_URL", value = "http://roadmap-service.service.local:8003" },
         { name = "FRONTEND_URL", value = "http://${aws_s3_bucket_website_configuration.frontend.website_endpoint}" }
       ])
       logConfiguration = {
