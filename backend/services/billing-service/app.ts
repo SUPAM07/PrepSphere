@@ -3,6 +3,7 @@ import paymentRouter from "./routes/billing.route.js";
 import { errorHandler } from "../../shared/middlewares/errorHandler.js";
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(express.json());
 
 app.get("/", (_req, res) => {

@@ -18,6 +18,7 @@ const env = parseEnv(gatewayEnvSchema);
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(
