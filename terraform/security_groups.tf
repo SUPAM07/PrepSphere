@@ -48,10 +48,10 @@ resource "aws_security_group" "ecs_tasks" {
   # Inbound traffic from within the VPC (internal communication)
   # This allows microservices to communicate with each other, Redis, and RabbitMQ
   ingress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    self        = true
+    protocol  = "-1"
+    from_port = 0
+    to_port   = 0
+    self      = true
   }
 
   # Outbound traffic (to connect to Neon DB, Mongo Atlas, etc.)

@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.5.0"
-  
+
   backend "s3" {
     bucket = "prepsphere-tf-state-1786134796"
     key    = "terraform.tfstate"
